@@ -27,7 +27,7 @@ DEFAULT_INPUT_MESSAGES = [
 # ------------------------------------------------------------------------------------------------------------------------- #
 # ------------------- I have ommited the websites with the Hetzner host as they block excessive requests. ----------------- #
 # ------------------------------------------------------------------------------------------------------------------------- #
-LINGVA_WEBSITES = ["lingva.ml", "translate.alefvanoon.xyz", "translate.igna.rocks"] # limited -> "translate.datatunnel.xyz" "lingva.pussthecat.org"
+LINGVA_WEBSITES = ["lingva.ml"] # limited -> "translate.datatunnel.xyz" "lingva.pussthecat.org"
 
 
 # ------------------------------------------------------------------------------------------------------------------------- #
