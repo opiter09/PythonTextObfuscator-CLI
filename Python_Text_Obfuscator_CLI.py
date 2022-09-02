@@ -377,4 +377,4 @@ def doIt(inF, outF):
 
         
 if (sys.argv[0] == "Python_Text_Obfuscator_CLI.py"):
-    doIt()
+    doIt("a", "b")
