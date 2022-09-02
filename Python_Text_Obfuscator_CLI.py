@@ -111,7 +111,6 @@ async def obfuscate_length_split(text, itr, lang='en'):
     FULL = len(Text_List)*(itr+1)
 
 
-    print('starting obfuscation')
     async with aiohttp.ClientSession() as session: # Run asynchronous requests for each text piece in the list to speed up result retrieval.
         tasks = [asyncio.ensure_future(obfuscate(session, text_piece, itr, lang)) for text_piece in Text_List]
 
@@ -175,7 +174,6 @@ async def obfuscate_newline_split(text, itr, lang='en'):
     # Find the total amount of translations to complete the requested obfuscuation.
     FULL = len(Text_List)*(itr+1)
 
-    print('starting obfuscation')
     async with aiohttp.ClientSession() as session: # Run asynchronous requests for each text piece in the list to speed up result retrieval.
         tasks = [asyncio.ensure_future(obfuscate(session, text_piece, itr, lang)) for text_piece in Text_List]
 
@@ -191,11 +189,11 @@ async def get_translation(session, url): # Gets translation for obfuscate functi
                 try:
                     return (await response.json())['translation'].replace('/','⁄')
                 except Exception as e:
-                    url += '%2E'
-                    print(url, e)
+                    #url += '%2E'
+                    print("Session Error", e)
                     time.sleep(1)
         except (aiohttp.ServerDisconnectedError, aiohttp.ClientResponseError,aiohttp.ClientConnectorError) as e:
-            print(url, e)
+            print("Connection Error", e)
             await asyncio.sleep(1)
 
 
@@ -290,11 +288,11 @@ async def obfuscate(session, text, itr, lang='en'):
                             text = (await response.json())['translation'].replace('/','⁄')
                             break
                         except Exception as e:
-                            url += '%2E'
-                            print(url, e)
+                            #url += '%2E'
+                            print("Session Error", e)
                             time.sleep(1)
                 except (aiohttp.ServerDisconnectedError, aiohttp.ClientResponseError, aiohttp.ClientConnectorError) as e:
-                    print(url, e)
+                    print("Connection Error", e)
                     await asyncio.sleep(1)
 
         last_lang = cur_lang
@@ -328,6 +326,7 @@ outputText = result
 # End progress estimation.
 translating = False
 
-print(time.time()-start_time)
+timeString = str(time.time() - start_time)
+print(timeString[0:(len(timeString.split(".")[0]) + 5)] + "... sec")
 
 outputFile.write(outputText)
