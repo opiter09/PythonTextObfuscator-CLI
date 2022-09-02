@@ -1,5 +1,7 @@
 This fork throws out all the pretty pictures below for a batchable CLI interface. Just run:
+
 ```python Python_Text_Obfuscator_CLI.py inputFile outputFile```
+
 To edit settings, simply edit config.py.
 
 # PythonTextObfuscator
