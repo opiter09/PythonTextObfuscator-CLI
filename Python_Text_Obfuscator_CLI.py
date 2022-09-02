@@ -16,6 +16,7 @@ if (platform.system() == "Windows"):
 if (sys.argv[0] == "Python_Text_Obfuscator_CLI.py"):
     inputFile = open(sys.argv[1], "rt")
     inputText = inputFile.read()
+    inputFile.close()
     outputFile = open(sys.argv[2], "wt")
     outputText = ""
 else:
@@ -336,6 +337,7 @@ def doIt(inF, outF):
     if (sys.argv[0] != "Python_Text_Obfuscator_CLI.py"):
         inputFile = open(inF, "rt")
         inputText = inputFile.read()
+        inputFile.close()
         outputFile = open(outF, "wt")
 
     # Begins the obfuscation.
@@ -369,10 +371,13 @@ def doIt(inF, outF):
             timeString = str(time.time() - start_time)
             print(timeString[0:(len(timeString.split(".")[0]) + 6)] + "... sec")
             outputFile.write(outputText)
+            outputFile.close()
         else:
             outputFile.write(outputText)
+            outputFile.close()
             return "success"
     else:
+        outputFile.close()
         return "error"
 
         
