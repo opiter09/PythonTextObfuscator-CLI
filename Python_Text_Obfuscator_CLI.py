@@ -24,7 +24,7 @@ else:
     outputFile = ""
     outputText = ""
     
-errored = False
+errored = 0
 
 rev_sp_nl = regex.compile('(?r)[ \n]') # Search the string in reverse for either a space or newline.
 rev_url_sp_nl = regex.compile('(?r)(%20|%0A)') # Search the string for a hex code that does not match a space or newline.
@@ -191,26 +191,25 @@ async def obfuscate_newline_split(text, itr, lang='en'):
 
 
 async def get_translation(session, url): # Gets translation for obfuscate function.
-    globals().errored = False
     while True:
         try:
             async with session.get(url) as response:
                 try:
                     return (await response.json())['translation'].replace('/','⁄')
                 except Exception as e:
-                    print("Session Error")
                     if (len(sys.argv) > 1):
+                        print("Session Error")
                         quit()
                     else:
-                        globals().errored = True
+                        globals()["errored"] += 1
                         break
                         return
         except (aiohttp.ServerDisconnectedError, aiohttp.ClientResponseError,aiohttp.ClientConnectorError) as e:
-            print("Connection Error")
             if (len(sys.argv) > 1):
+                print("Connection Error")
                 quit()
             else:
-                globals().errored = True
+                globals()["errored"] += 1
                 break
                 return
 
@@ -299,7 +298,6 @@ async def obfuscate(session, text, itr, lang='en'):
 
         else: # Text is translated normally.
             last_lang = cur_lang
-            globals().errored = False
             while True:
                 try:
                     async with session.get(url) as response:
@@ -308,19 +306,19 @@ async def obfuscate(session, text, itr, lang='en'):
                             break
                         except Exception as e:
                             #url += '%2E'
-                            print("Session Error")
                             if (len(sys.argv) > 1):
+                                print("Session Error")
                                 quit()
                             else:
-                                globals().errored = True
+                                globals()["errored"] += 1
                                 break
                                 return
                 except (aiohttp.ServerDisconnectedError, aiohttp.ClientResponseError, aiohttp.ClientConnectorError) as e:
-                    print("Connection Error")
                     if (len(sys.argv) > 1):
+                        print("Connection Error")
                         quit()
                     else:
-                        globals().errored = True
+                        globals()["errored"] += 1
                         break
                         return
 
@@ -329,6 +327,8 @@ async def obfuscate(session, text, itr, lang='en'):
     return pre_text+text+post_text
 
 def doIt(inF, outF):
+    global errored
+    errored = 0
     global inputFile
     global inputText
     global outputFile
@@ -364,12 +364,17 @@ def doIt(inF, outF):
     # End progress estimation.
     translating = False
     
-    if (globals().errored == False):
-        timeString = str(time.time() - start_time)
-        print(timeString[0:(len(timeString.split(".")[0]) + 6)] + "... sec")
-        outputFile.write(outputText)
+    if (errored == 0):
+        if (len(sys.argv) > 1):
+            timeString = str(time.time() - start_time)
+            print(timeString[0:(len(timeString.split(".")[0]) + 6)] + "... sec")
+            outputFile.write(outputText)
+        else:
+            outputFile.write(outputText)
+            return "success"
     else:
         return "error"
-    
+
+        
 if (len(sys.argv) > 1):
     doIt()
