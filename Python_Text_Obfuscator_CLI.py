@@ -13,10 +13,18 @@ import platform
 if (platform.system() == "Windows"):
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
-inputFile = open(sys.argv[1], "rt")
-inputText = inputFile.read()
-outputFile = open(sys.argv[2], "wt")
-outputText = ""
+if (len(sys.argv) > 1):
+    inputFile = open(sys.argv[1], "rt")
+    inputText = inputFile.read()
+    outputFile = open(sys.argv[2], "wt")
+    outputText = ""
+else:
+    inputFile = ""
+    inputText = ""
+    outputFile = ""
+    outputText = ""
+    
+errored = False
 
 rev_sp_nl = regex.compile('(?r)[ \n]') # Search the string in reverse for either a space or newline.
 rev_url_sp_nl = regex.compile('(?r)(%20|%0A)') # Search the string for a hex code that does not match a space or newline.
@@ -183,18 +191,28 @@ async def obfuscate_newline_split(text, itr, lang='en'):
 
 
 async def get_translation(session, url): # Gets translation for obfuscate function.
+    globals().errored = False
     while True:
         try:
             async with session.get(url) as response:
                 try:
                     return (await response.json())['translation'].replace('/','⁄')
                 except Exception as e:
-                    #url += '%2E'
-                    print("Session Error", e)
-                    time.sleep(1)
+                    print("Session Error")
+                    if (len(sys.argv) > 1):
+                        quit()
+                    else:
+                        globals().errored = True
+                        break
+                        return
         except (aiohttp.ServerDisconnectedError, aiohttp.ClientResponseError,aiohttp.ClientConnectorError) as e:
-            print("Connection Error", e)
-            await asyncio.sleep(1)
+            print("Connection Error")
+            if (len(sys.argv) > 1):
+                quit()
+            else:
+                globals().errored = True
+                break
+                return
 
 
 async def obfuscate(session, text, itr, lang='en'):
@@ -281,6 +299,7 @@ async def obfuscate(session, text, itr, lang='en'):
 
         else: # Text is translated normally.
             last_lang = cur_lang
+            globals().errored = False
             while True:
                 try:
                     async with session.get(url) as response:
@@ -289,44 +308,68 @@ async def obfuscate(session, text, itr, lang='en'):
                             break
                         except Exception as e:
                             #url += '%2E'
-                            print("Session Error", e)
-                            time.sleep(1)
+                            print("Session Error")
+                            if (len(sys.argv) > 1):
+                                quit()
+                            else:
+                                globals().errored = True
+                                break
+                                return
                 except (aiohttp.ServerDisconnectedError, aiohttp.ClientResponseError, aiohttp.ClientConnectorError) as e:
-                    print("Connection Error", e)
-                    await asyncio.sleep(1)
+                    print("Connection Error")
+                    if (len(sys.argv) > 1):
+                        quit()
+                    else:
+                        globals().errored = True
+                        break
+                        return
 
         last_lang = cur_lang
 
     return pre_text+text+post_text
 
+def doIt(inF, outF):
+    global inputFile
+    global inputText
+    global outputFile
+    global outputText
+    if (len(sys.argv) == 1):
+        inputFile = open(inF, "rt")
+        inputText = inputFile.read()
+        outputFile = open(outF, "wt")
+
+    # Begins the obfuscation.
+    # Set variables related to measuring translation progress.
+    start_time = time.time()
+    counter = 0
+    FULL = 1
+    translating = True
+
+    itr = DEFAULT_ITERATIONS_VALUE # Amount of translations.
+
+    if DEFAULT_SPLIT_MODE == 0: # Initial Mode
+
+        result = asyncio.run( obfuscate_length_split(inputText, itr, GOOGLE_LANGUAGE_ALL[GOOGLE_LANGUAGE_NAMES.index(DEFAULT_LANGUAGE)]) ) # Obfuscate Asynchronously
+
+    elif DEFAULT_SPLIT_MODE == 1: # Continuous Mode
+
+        FULL = itr+1 # FULL is not set in the obfuscate function itself, so this must be set.
+        result = asyncio.run( obfuscate(None, inputText, itr, GOOGLE_LANGUAGE_ALL[GOOGLE_LANGUAGE_NAMES.index(DEFAULT_LANGUAGE)]) ) # Obfuscate Asynchronously
+
+    else: # Newline Mode
+
+        result = asyncio.run( obfuscate_newline_split(inputText, itr, GOOGLE_LANGUAGE_ALL[GOOGLE_LANGUAGE_NAMES.index(DEFAULT_LANGUAGE)]) ) # Obfuscate Asynchronously
+
+    outputText = result
+    # End progress estimation.
+    translating = False
     
-# Begins the obfuscation.
-# Set variables related to measuring translation progress.
-start_time = time.time()
-counter = 0
-FULL = 1
-translating = True
-
-itr = DEFAULT_ITERATIONS_VALUE # Amount of translations.
-
-if DEFAULT_SPLIT_MODE == 0: # Initial Mode
-
-    result = asyncio.run( obfuscate_length_split(inputText, itr, GOOGLE_LANGUAGE_ALL[GOOGLE_LANGUAGE_NAMES.index(DEFAULT_LANGUAGE)]) ) # Obfuscate Asynchronously
-
-elif DEFAULT_SPLIT_MODE == 1: # Continuous Mode
-
-    FULL = itr+1 # FULL is not set in the obfuscate function itself, so this must be set.
-    result = asyncio.run( obfuscate(None, inputText, itr, GOOGLE_LANGUAGE_ALL[GOOGLE_LANGUAGE_NAMES.index(DEFAULT_LANGUAGE)]) ) # Obfuscate Asynchronously
-
-else: # Newline Mode
-
-    result = asyncio.run( obfuscate_newline_split(inputText, itr, GOOGLE_LANGUAGE_ALL[GOOGLE_LANGUAGE_NAMES.index(DEFAULT_LANGUAGE)]) ) # Obfuscate Asynchronously
-
-outputText = result
-# End progress estimation.
-translating = False
-
-timeString = str(time.time() - start_time)
-print(timeString[0:(len(timeString.split(".")[0]) + 5)] + "... sec")
-
-outputFile.write(outputText)
+    if (globals().errored == False):
+        timeString = str(time.time() - start_time)
+        print(timeString[0:(len(timeString.split(".")[0]) + 6)] + "... sec")
+        outputFile.write(outputText)
+    else:
+        return "error"
+    
+if (len(sys.argv) > 1):
+    doIt()
