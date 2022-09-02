@@ -13,7 +13,7 @@ import platform
 if (platform.system() == "Windows"):
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
-if (len(sys.argv) > 1):
+if (sys.argv[0] == "Python_Text_Obfuscator_CLI.py"):
     inputFile = open(sys.argv[1], "rt")
     inputText = inputFile.read()
     outputFile = open(sys.argv[2], "wt")
@@ -197,7 +197,7 @@ async def get_translation(session, url): # Gets translation for obfuscate functi
                 try:
                     return (await response.json())['translation'].replace('/','⁄')
                 except Exception as e:
-                    if (len(sys.argv) > 1):
+                    if (sys.argv[0] == "Python_Text_Obfuscator_CLI.py"):
                         print("Session Error")
                         quit()
                     else:
@@ -205,7 +205,7 @@ async def get_translation(session, url): # Gets translation for obfuscate functi
                         break
                         return
         except (aiohttp.ServerDisconnectedError, aiohttp.ClientResponseError,aiohttp.ClientConnectorError) as e:
-            if (len(sys.argv) > 1):
+            if (sys.argv[0] == "Python_Text_Obfuscator_CLI.py"):
                 print("Connection Error")
                 quit()
             else:
@@ -306,7 +306,7 @@ async def obfuscate(session, text, itr, lang='en'):
                             break
                         except Exception as e:
                             #url += '%2E'
-                            if (len(sys.argv) > 1):
+                            if (sys.argv[0] == "Python_Text_Obfuscator_CLI.py"):
                                 print("Session Error")
                                 quit()
                             else:
@@ -314,7 +314,7 @@ async def obfuscate(session, text, itr, lang='en'):
                                 break
                                 return
                 except (aiohttp.ServerDisconnectedError, aiohttp.ClientResponseError, aiohttp.ClientConnectorError) as e:
-                    if (len(sys.argv) > 1):
+                    if (sys.argv[0] == "Python_Text_Obfuscator_CLI.py"):
                         print("Connection Error")
                         quit()
                     else:
@@ -333,7 +333,7 @@ def doIt(inF, outF):
     global inputText
     global outputFile
     global outputText
-    if (len(sys.argv) == 1):
+    if (sys.argv[0] != "Python_Text_Obfuscator_CLI.py"):
         inputFile = open(inF, "rt")
         inputText = inputFile.read()
         outputFile = open(outF, "wt")
@@ -365,7 +365,7 @@ def doIt(inF, outF):
     translating = False
     
     if (errored == 0):
-        if (len(sys.argv) > 1):
+        if (sys.argv[0] == "Python_Text_Obfuscator_CLI.py"):
             timeString = str(time.time() - start_time)
             print(timeString[0:(len(timeString.split(".")[0]) + 6)] + "... sec")
             outputFile.write(outputText)
@@ -376,5 +376,5 @@ def doIt(inF, outF):
         return "error"
 
         
-if (len(sys.argv) > 1):
+if (sys.argv[0] == "Python_Text_Obfuscator_CLI.py"):
     doIt()
