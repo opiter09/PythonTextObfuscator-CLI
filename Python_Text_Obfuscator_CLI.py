@@ -8,6 +8,7 @@ import sys, os
 import time
 import regex
 
+#Got this off StackOverflow, stops "Event Loop is Closed" errors
 import platform
 if (platform.system() == "Windows"):
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
