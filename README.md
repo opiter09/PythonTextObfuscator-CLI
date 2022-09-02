@@ -2,7 +2,11 @@ This fork throws out all the pretty pictures below for a batchable CLI interface
 
 ```python Python_Text_Obfuscator_CLI.py inputFile outputFile```
 
-To edit settings, simply edit config.py.
+You can also import it into other code, and then call
+
+```Python_Text_Obfuscator_CLI.doIt(inputFile, outputFile)```
+
+in order to perform a translation. To edit settings, simply edit config.py.
 
 # PythonTextObfuscator
 Takes a string and puts it through different languages in Google Translate a requested amount of times, returning nonsense.
